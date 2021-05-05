@@ -1,0 +1,72 @@
+#:kivy 2.0.0
+
+<Timer>:
+    displayLabel:displayLabel
+    cycleLabel:cycleLabel
+    statusLabel:statusLabel
+    main_btn:main_btn
+    skip:skip
+    reset:reset
+    
+    canvas.before:
+        Color:
+            rgba: 0.1, 0.1, 0.1, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    
+    BoxLayout:
+        orientation: 'vertical'
+        
+
+        size: self.parent.size
+        pos: self.parent.pos 
+
+        Label:
+            id: statusLabel
+            text: root.sequence[root.cycle] 
+            color: 0.88, 0.47, 0.0, 1
+            font_size: 25
+
+        Label:
+            id:displayLabel
+            text: root.time_convert()
+            font_size: 120
+            color: 0.88, 0.47, 0.0, 1
+        Label:
+            text: ''
+            color: 0.88, 0.47, 0.0, 1
+
+        Label:
+            id: cycleLabel
+            text: 'Focus Cycle 1'
+            color: 0.88, 0.47, 0.0, 1
+            font_color: ''
+            font_size: 25
+        
+        ## KIVY MAIN BUTTONS
+        BoxLayout:
+            orientation: 'horizontal'
+            spacing: 10
+            size_hint: 1, 1
+
+            Button:
+                id: skip
+                on_release: root.break_button(), root.timer_alarm.stop()
+                background_normal: './resources/skip.png'
+                background_down: './resources/skip.png'
+
+            Button:
+                id: main_btn
+                on_release: root.start_button(), root.timer_alarm.stop()
+                background_normal: './resources/play.png'
+                background_down: './resources/play.png'
+
+
+            Button:
+                id: reset
+                disabled: True
+                on_release: root.reset_button(), root.timer_alarm.stop()
+                background_disabled_normal: './resources/reset-disabled.png'
+                background_normal: './resources/reset.png'
+                background_down: './resources/reset.png'
