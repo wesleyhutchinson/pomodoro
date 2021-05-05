@@ -1,8 +1,9 @@
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.clock import Clock
-from kivy.properties import ObjectProperty
+from kivy.properties import ObjectProperty, NumericProperty
 from kivy.uix.widget import Widget
+from kivy.uix.label import Label
 from kivy.core.audio import SoundLoader
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.recycleview import RecycleView
@@ -15,6 +16,14 @@ Config.set('graphics', 'height', '600')
 Config.set('graphics', 'resizable', '0')
 Config.write()
 
+class CustLabel(Label):
+    angle = NumericProperty()
+
+    def __init__(self, **kwargs):
+        super(CustLabel, self).__init__(**kwargs)
+        self.angle = 360
+
+
 class Timer(Widget):
     focus_time, default = 1500, 1500
     rest_time = 300
@@ -25,10 +34,13 @@ class Timer(Widget):
     pomo_count = 1
     timer_On = False
     timer_alarm = SoundLoader.load('resources/alert.mp3')
+    color = [0.88, 0.47, 0.0, 1]
+    displayLabel  = ObjectProperty(CustLabel())
 
     def __init__(self, **kwargs):
         super(Timer, self).__init__(**kwargs)
         Clock.schedule_interval(self.update, 1)
+
 
     #Function to convert time into minutes and seconds
     def time_convert(self):
@@ -59,20 +71,20 @@ class Timer(Widget):
         self.setup()
     
     def setColor(self, state):
-        color = [0.88, 0.47, 0.0, 1]
-        if state == "Rest":
-            color = [0.07, 0.31, 0.95, 1]
-        self.displayLabel.color = color
-        self.statusLabel.color = color
-        self.cycleLabel.color = color
+        self.color = [0.88, 0.47, 0.0, 1]
+        if state != "Focus":
+            self.color = [0.07, 0.31, 0.95, 1]
+        self.displayLabel.color = self.color
+        self.statusLabel.color = self.color
+        self.cycleLabel.color = self.color
 
     # Determines if the "Status" of the timer
     def setup(self):
         self.statusLabel.text = str(self.sequence[self.cycle])
         if self.sequence[self.cycle] == 'Focus':
             self.focus_time = self.default
-            self.pomo_count += 1
-            if self.pomo_count == 4:
+            self.pomo_count += 1 
+            if self.pomo_count > 4:
                 self.pomo_count = 0
             self.cycleLabel.text = 'Focus Cycle: ' + str(self.pomo_count)
             self.setColor("Focus")
@@ -88,7 +100,7 @@ class Timer(Widget):
             self.cycleLabel.text = 'Completed Four Focus Cylces'
             self.focus_time = self.recover
             self.setColor("Rest")
-            self.phase = "Rest"
+            self.phase = "Recover"
         
         if self.timer_On is False:
             self.btn_default()
@@ -99,7 +111,7 @@ class Timer(Widget):
 
     # Default style of the Pause Button
     def pause_default(self):
-        if self.phase == "Rest":
+        if self.phase != "Focus":
             self.main_btn.background_normal = './resources/pause-rest.png'
             self.main_btn.background_down = './resources/pause-rest.png'
         else:
@@ -108,7 +120,7 @@ class Timer(Widget):
 
     # Default style of Buttons
     def btn_default(self):
-        if self.phase == "Rest":
+        if self.phase != "Focus":
             self.main_btn.background_normal = './resources/play-rest.png'
             self.main_btn.background_down = './resources/play-rest.png'  
         else:
@@ -117,7 +129,7 @@ class Timer(Widget):
 
     
     def other_btn(self):
-        if self.phase == "Rest":
+        if self.phase != "Focus":
             self.skip.background_normal = './resources/skip-rest.png'
             self.skip.background_down = './resources/skip-rest.png'
             self.reset.background_normal = './resources/reset-rest.png'
@@ -160,18 +172,31 @@ class Timer(Widget):
             self.reset.disabled = False
             self.focus_time -= 1
             self.displayLabel.text = self.time_convert()
-            self.displayLabel.font_size = "120"     
+            self.displayLabel.font_size = "120"
+            self.set_circle()     
         elif self.timer_On and self.focus_time > -2:
             self.focus_time -= 1
             if self.focus_time == -1:
                 self.timer_alarm.play()
             self.displayLabel.text = "Cycle Completed"
-            self.displayLabel.font_size = "50"           
+            self.displayLabel.font_size = "50"                  
         elif self.focus_time == -2:
             self.timer_On = False
             self.check_cycle()
+            self.reset_angle()
             self.displayLabel.text = self.time_convert()
             self.displayLabel.font_size = "120"                   
+
+    def reset_angle(self):
+        self.displayLabel.angle = 360
+
+    def set_circle(self):
+        if self.phase == "Focus":
+            self.displayLabel.angle = (self.focus_time / self.default) * 360
+        elif self.phase == "Rest":
+            self.displayLabel.angle = (self.focus_time / self.rest_time) * 360
+        else:
+            self.displayLabel.angle = (self.focus_time / self.recover) * 360
 
 class PomoApp(App):
     def build(self):

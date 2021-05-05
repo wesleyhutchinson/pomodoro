@@ -5,50 +5,66 @@
     cycleLabel:cycleLabel
     statusLabel:statusLabel
     main_btn:main_btn
+    # anim_circle:anim_circle
     skip:skip
     reset:reset
     
     canvas.before:
         Color:
             rgba: 0.1, 0.1, 0.1, 1
-        Rectangle:
-            pos: self.pos
-            size: self.size
-    
+        
     BoxLayout:
         orientation: 'vertical'
-        
-
         size: self.parent.size
         pos: self.parent.pos 
-
+        padding: 10
+        spacing: 10
+        
+        
+        
         Label:
             id: statusLabel
             text: root.sequence[root.cycle] 
             color: 0.88, 0.47, 0.0, 1
-            font_size: 25
+            font_size: 35
 
-        Label:
+        
+        
+        # Label:
+        #     id:displayLabel
+        #     text: root.time_convert()
+        #     font_size: 120
+        #     color: 0.88, 0.47, 0.0, 1
+            
+        CustLabel:
             id:displayLabel
             text: root.time_convert()
             font_size: 120
             color: 0.88, 0.47, 0.0, 1
+            canvas:
+                Color:
+                    rgb: self.color
+                Line:
+                    circle: self.center_x, self.center_y, 180, 0, self.angle
+                    width: 4
         Label:
             text: ''
-            color: 0.88, 0.47, 0.0, 1
+            color: 0.88, 0.47, 0.0, 1         
 
         Label:
             id: cycleLabel
             text: 'Focus Cycle 1'
             color: 0.88, 0.47, 0.0, 1
             font_color: ''
-            font_size: 25
+            font_size: 35
         
         ## KIVY MAIN BUTTONS
         BoxLayout:
             orientation: 'horizontal'
             spacing: 10
-            size_hint: 1, 1
+            halign: 'centre'
+            size_hint: .7, .6
+            pos_hint: {'x': .15}
 
             Button:
                 id: skip
